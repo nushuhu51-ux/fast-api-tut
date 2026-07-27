@@ -1,34 +1,36 @@
+import os
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
-
+from sqlalchemy.orm import sessionmaker, declarative_base
 
 # MySQL Configuration
-DB_USERNAME = "root"
-DB_PASSWORD = "sami2539E"
-DB_HOST = "localhost"
-DB_PORT = "3306"
-DB_NAME = "fastapi_db"
-
+MYSQL_USER = os.getenv("MYSQL_USER", "root")
+MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "sami2539E")
+MYSQL_HOST = os.getenv("MYSQL_HOST", "db")
+MYSQL_PORT = os.getenv("MYSQL_PORT", "3306")
+MYSQL_DATABASE = os.getenv("MYSQL_DATABASE", "fastapi_db")
 
 DATABASE_URL = (
-    f"mysql+pymysql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}"
 )
 
+# Database Engine
+engine = create_engine(
+    DATABASE_URL,
+    echo=True,
+    pool_pre_ping=True,
+)
 
-engine = create_engine(DATABASE_URL)
-
-
+# Session
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
-    bind=engine
+    bind=engine,
 )
 
-
+# Base Model
 Base = declarative_base()
 
-
-# Database dependency for FastAPI
+# Dependency
 def get_db():
     db = SessionLocal()
     try:
